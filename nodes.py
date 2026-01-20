@@ -1,4 +1,6 @@
 import os
+import sys
+import contextlib
 import torch
 from tqdm import tqdm
 import numpy as np
@@ -92,10 +94,13 @@ class PoseAndFaceDetection:
         pose_model.reinit()
         if retarget_image is not None:
             refer_img = resize_by_area(retarget_image[0].numpy() * 255, width * height, divisor=16) / 255.0
-            ref_bbox = (detector(
-                cv2.resize(refer_img.astype(np.float32), (640, 640)).transpose(2, 0, 1)[None],
-                shape
-                )[0][0]["bbox"])
+            # Suppress DWPose logs
+            with open(os.devnull, 'w') as fnull:
+                with contextlib.redirect_stdout(fnull):
+                        ref_bbox = (detector(
+                        cv2.resize(refer_img.astype(np.float32), (640, 640)).transpose(2, 0, 1)[None],
+                        shape
+                        )[0][0]["bbox"])
 
             if ref_bbox is None or ref_bbox[-1] <= 0 or (ref_bbox[2] - ref_bbox[0]) < 10 or (ref_bbox[3] - ref_bbox[1]) < 10:
                 ref_bbox = np.array([0, 0, refer_img.shape[1], refer_img.shape[0]])
@@ -105,18 +110,24 @@ class PoseAndFaceDetection:
 
             img_norm = (refer_img - IMG_NORM_MEAN) / IMG_NORM_STD
             img_norm = img_norm.transpose(2, 0, 1).astype(np.float32)
-
-            ref_keypoints = pose_model(img_norm[None], np.array(center)[None], np.array(scale)[None])
+            
+            # Suppress DWPose logs
+            with open(os.devnull, 'w') as fnull:
+                with contextlib.redirect_stdout(fnull):
+                    ref_keypoints = pose_model(img_norm[None], np.array(center)[None], np.array(scale)[None])
             refer_pose_meta = load_pose_metas_from_kp2ds_seq(ref_keypoints, width=retarget_image.shape[2], height=retarget_image.shape[1])[0]
 
         comfy_pbar = ProgressBar(B*2)
         progress = 0
         bboxes = []
         for img in tqdm(images_np, total=len(images_np), desc="Detecting bboxes"):
-            bboxes.append(detector(
-                cv2.resize(img, (640, 640)).transpose(2, 0, 1)[None],
-                shape
-                )[0][0]["bbox"])
+            # Suppress DWPose logs
+            with open(os.devnull, 'w') as fnull:
+                with contextlib.redirect_stdout(fnull):
+                    bboxes.append(detector(
+                        cv2.resize(img, (640, 640)).transpose(2, 0, 1)[None],
+                        shape
+                        )[0][0]["bbox"])
             progress += 1
             if progress % 10 == 0:
                 comfy_pbar.update_absolute(progress)
@@ -135,7 +146,10 @@ class PoseAndFaceDetection:
             img_norm = (img - IMG_NORM_MEAN) / IMG_NORM_STD
             img_norm = img_norm.transpose(2, 0, 1).astype(np.float32)
 
-            keypoints = pose_model(img_norm[None], np.array(center)[None], np.array(scale)[None])
+            # Suppress DWPose logs
+            with open(os.devnull, 'w') as fnull:
+                with contextlib.redirect_stdout(fnull):
+                    keypoints = pose_model(img_norm[None], np.array(center)[None], np.array(scale)[None])
             kp2ds.append(keypoints)
             progress += 1
             if progress % 10 == 0:
@@ -384,10 +398,14 @@ class PoseDetectionOneToAllAnimation:
         if ref_image is not None:
             refer_img_np = ref_image[0].numpy() * 255
             refer_img = resize_by_area(refer_img_np, width * height, divisor=16) / 255.0
-            ref_bbox = (detector(
-                cv2.resize(refer_img.astype(np.float32), (640, 640)).transpose(2, 0, 1)[None],
-                shape
-                )[0][0]["bbox"])
+            
+            # Suppress DWPose logs
+            with open(os.devnull, 'w') as fnull:
+                with contextlib.redirect_stdout(fnull):
+                    ref_bbox = (detector(
+                        cv2.resize(refer_img.astype(np.float32), (640, 640)).transpose(2, 0, 1)[None],
+                        shape
+                        )[0][0]["bbox"])
 
             if ref_bbox is None or ref_bbox[-1] <= 0 or (ref_bbox[2] - ref_bbox[0]) < 10 or (ref_bbox[3] - ref_bbox[1]) < 10:
                 ref_bbox = np.array([0, 0, refer_img.shape[1], refer_img.shape[0]])
@@ -398,7 +416,10 @@ class PoseDetectionOneToAllAnimation:
             img_norm = (refer_img - IMG_NORM_MEAN) / IMG_NORM_STD
             img_norm = img_norm.transpose(2, 0, 1).astype(np.float32)
 
-            ref_keypoints = pose_model(img_norm[None], np.array(center)[None], np.array(scale)[None])
+            # Suppress DWPose logs
+            with open(os.devnull, 'w') as fnull:
+                with contextlib.redirect_stdout(fnull):
+                    ref_keypoints = pose_model(img_norm[None], np.array(center)[None], np.array(scale)[None])
             refer_pose_meta = load_pose_metas_from_kp2ds_seq(ref_keypoints, width=ref_image.shape[2], height=ref_image.shape[1])[0]
 
             ref_dwpose = aaposemeta_to_dwpose(refer_pose_meta)
@@ -407,10 +428,13 @@ class PoseDetectionOneToAllAnimation:
         progress = 0
         bboxes = []
         for img in tqdm(images_np, total=len(images_np), desc="Detecting bboxes"):
-            bboxes.append(detector(
-                cv2.resize(img, (640, 640)).transpose(2, 0, 1)[None],
-                shape
-                )[0][0]["bbox"])
+            # Suppress DWPose logs
+            with open(os.devnull, 'w') as fnull:
+                with contextlib.redirect_stdout(fnull):
+                    bboxes.append(detector(
+                        cv2.resize(img, (640, 640)).transpose(2, 0, 1)[None],
+                        shape
+                        )[0][0]["bbox"])
             progress += 1
             if progress % 10 == 0:
                 comfy_pbar.update_absolute(progress)
@@ -429,7 +453,10 @@ class PoseDetectionOneToAllAnimation:
             img_norm = (img - IMG_NORM_MEAN) / IMG_NORM_STD
             img_norm = img_norm.transpose(2, 0, 1).astype(np.float32)
 
-            keypoints = pose_model(img_norm[None], np.array(center)[None], np.array(scale)[None])
+            # Suppress DWPose logs
+            with open(os.devnull, 'w') as fnull:
+                with contextlib.redirect_stdout(fnull):
+                    keypoints = pose_model(img_norm[None], np.array(center)[None], np.array(scale)[None])
             kp2ds.append(keypoints)
             progress += 1
             if progress % 10 == 0:
