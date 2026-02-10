@@ -120,7 +120,7 @@ class PoseAndFaceDetection:
         comfy_pbar = ProgressBar(B*2)
         progress = 0
         bboxes = []
-        for img in tqdm(images_np, total=len(images_np), desc="Detecting bboxes"):
+        for img in tqdm(images_np, total=len(images_np), desc="Detecting bboxes", disable=True):
             # Suppress DWPose logs
             with open(os.devnull, 'w') as fnull:
                 with contextlib.redirect_stdout(fnull):
@@ -427,7 +427,7 @@ class PoseDetectionOneToAllAnimation:
         comfy_pbar = ProgressBar(B*2)
         progress = 0
         bboxes = []
-        for img in tqdm(images_np, total=len(images_np), desc="Detecting bboxes"):
+        for img in tqdm(images_np, total=len(images_np), desc="Detecting bboxes", disable=True):
             # Suppress DWPose logs
             with open(os.devnull, 'w') as fnull:
                 with contextlib.redirect_stdout(fnull):
