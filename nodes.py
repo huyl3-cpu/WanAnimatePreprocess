@@ -135,7 +135,7 @@ class PoseAndFaceDetection:
         detector.cleanup()
 
         kp2ds = []
-        for img, bbox in tqdm(zip(images_np, bboxes), total=len(images_np), desc="Extracting keypoints"):
+        for img, bbox in tqdm(zip(images_np, bboxes), total=len(images_np), desc="Extracting keypoints", disable=True):
             if bbox is None or bbox[-1] <= 0 or (bbox[2] - bbox[0]) < 10 or (bbox[3] - bbox[1]) < 10:
                 bbox = np.array([0, 0, img.shape[1], img.shape[0]])
 
@@ -442,7 +442,7 @@ class PoseDetectionOneToAllAnimation:
         detector.cleanup()
 
         kp2ds = []
-        for img, bbox in tqdm(zip(images_np, bboxes), total=len(images_np), desc="Extracting keypoints"):
+        for img, bbox in tqdm(zip(images_np, bboxes), total=len(images_np), desc="Extracting keypoints", disable=True):
             if bbox is None or bbox[-1] <= 0 or (bbox[2] - bbox[0]) < 10 or (bbox[3] - bbox[1]) < 10:
                 bbox = np.array([0, 0, img.shape[1], img.shape[0]])
 
